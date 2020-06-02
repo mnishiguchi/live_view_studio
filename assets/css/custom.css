@@ -131,6 +131,10 @@ ul.examples {
     form {
       @apply flex items-center;
 
+      .group {
+        @apply flex items-baseline;
+      }
+
       label {
         @apply uppercase tracking-wide text-indigo-800 text-xs font-semibold mr-2;
       }
