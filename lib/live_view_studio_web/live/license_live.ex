@@ -3,6 +3,7 @@ defmodule LiveViewStudioWeb.LicenseLive do
 
   alias LiveViewStudio.Licenses
   import Number.Currency
+  import Inflex
 
   def mount(_params, _session, socket) do
     socket = assign(socket, seats: 3, amount: Licenses.calculate(3))
@@ -19,7 +20,8 @@ defmodule LiveViewStudioWeb.LicenseLive do
           <div class="seats">
             <img src="images/license.svg">
             <span>
-              Your license is currently for <strong><%= @seats %></strong> seats.
+              Your license is currently for
+              <strong><%= @seats %></strong> <%= Inflex.inflect("seat", @seats) %>.
             </span>
           </div>
 
