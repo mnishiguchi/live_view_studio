@@ -65,7 +65,14 @@ defmodule LiveViewStudioWeb.LightLive do
   end
 
   def handle_event("update", %{"brightness" => brightness}, socket) do
-    socket = assign(socket, :brightness, String.to_integer(brightness))
-    {:noreply, socket}
+    brightness = String.to_integer(brightness)
+
+    cond do
+      brightness in @min_brightness..@max_brightness ->
+        {:noreply, assign(socket, :brightness, brightness)}
+
+      true ->
+        {:noreply, socket}
+    end
   end
 end
