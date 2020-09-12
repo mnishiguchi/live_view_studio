@@ -35,6 +35,11 @@ defmodule LiveViewStudioWeb.LightLive do
       <button phx-click="on">
         <img src="images/light-on.svg">
       </button>
+
+      <form phx-change="update">
+        <input type="range" min="0" max="100"
+               name="brightness" value="<%= @brightness %>" />
+      </form>
     </div>
     """
   end
@@ -56,6 +61,11 @@ defmodule LiveViewStudioWeb.LightLive do
 
   def handle_event("off", _, socket) do
     socket = assign(socket, :brightness, @min_brightness)
+    {:noreply, socket}
+  end
+
+  def handle_event("update", %{"brightness" => brightness}, socket) do
+    socket = assign(socket, :brightness, String.to_integer(brightness))
     {:noreply, socket}
   end
 end
