@@ -3,18 +3,23 @@ defmodule LiveViewStudioWeb.SalesDashboardLive do
 
   alias LiveViewStudio.Sales
 
+  @initial_refresh_interval 1
+
   def mount(_params, _session, socket) do
+    # Initialize socket assigns.
+    socket =
+      socket
+      |> assign_stats()
+      |> assign(refresh_interval: @initial_refresh_interval)
+      |> assign(last_updated_at: Timex.now())
+
     # Mount is invoked twice, once for the initial HTTP request that returns a
     # full HTML page. And again when the client has connected to the WebSocket.
     # So we need to wait until it's in this connected state before sending the
     # message.
     if connected?(socket) do
-      # After connected, self is a LiveView process. :tick is an internal
-      # message.
-      :timer.send_interval(1000, self(), :tick)
+      schedule_refresh(socket)
     end
-
-    socket = assign_stats(socket)
 
     {:ok, socket}
   end
@@ -53,35 +58,61 @@ defmodule LiveViewStudioWeb.SalesDashboardLive do
         </div>
       </div>
 
-      <button phx-click="refresh">
-        <img src="images/refresh.svg">
-        Refresh
-      </button>
+      <form phx-change="refresh">
+        <label for="refresh_interval">
+          Refresh every:
+        </label>
+        <select name="refresh_interval">
+          <%= options_for_select(refresh_interval_options(), @refresh_interval) %>
+        </select>
+      </form>
+
+      <div>
+      Last updated at:
+      <%= Timex.format!(@last_updated_at, "%H:%M:%S", :strftime) %>
+      </div>
     </div>
     """
   end
 
   @doc """
-  Handles the browser event "refresh".
+  Invoked when the refresh interval is selected. Updates the value for
+  `refresh_interval`.
   """
-  def handle_event("refresh", _, socket) do
-    socket = assign_stats(socket)
+  def handle_event("refresh", %{"refresh_interval" => refresh_interval}, socket) do
+    refresh_interval = String.to_integer(refresh_interval)
+    socket = assign(socket, refresh_interval: refresh_interval)
+
     {:noreply, socket}
   end
 
   @doc """
-  Handles the internal message :tick.
+  Refreshes stats and schedules next refresh.
   """
   def handle_info(:tick, socket) do
-    socket = assign_stats(socket)
+    socket = socket |> assign_stats |> assign(last_updated_at: Timex.now())
+    schedule_refresh(socket)
+
     {:noreply, socket}
   end
 
-  defp assign_stats(socket) do
+  # Re-calculates stats and assigns it to the socket.
+  defp assign_stats(%{assigns: %{}} = socket) do
     assign(socket,
       new_orders: Sales.new_orders(),
       sales_amount: Sales.sales_amount(),
       satisfaction: Sales.satisfaction()
     )
+  end
+
+  # Schedules refresh with the currently-set refresh interval.
+  defp schedule_refresh(%{assigns: %{refresh_interval: refresh_interval}}) do
+    milliseconds = refresh_interval * 1000
+    Process.send_after(self(), :tick, milliseconds)
+  end
+
+  # A list of lable-value pair tuples for the refresh interval options.
+  defp refresh_interval_options do
+    Enum.map([1, 5, 15, 30, 60], fn x -> {"#{x}s", x} end)
   end
 end
