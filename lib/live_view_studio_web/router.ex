@@ -17,7 +17,11 @@ defmodule LiveViewStudioWeb.Router do
   scope "/", LiveViewStudioWeb do
     pipe_through :browser
 
-    live "/", PageLive
+    # Controller routes
+    get "/", PageController, :index
+
+    # LiveView routes
+    live "/hex-search", HexSearchLive
     live "/light", LightLive
     live "/license", LicenseLive
     live "/sales-dashboard", SalesDashboardLive

@@ -1,4 +1,4 @@
-defmodule LiveViewStudioWeb.PageLive do
+defmodule LiveViewStudioWeb.HexSearchLive do
   use LiveViewStudioWeb, :live_view
 
   @impl true
