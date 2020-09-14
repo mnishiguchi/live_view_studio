@@ -9,7 +9,7 @@
 <hr>
 
 <div class="my-8">
-  <%= live_render(@conn, LiveViewStudioWeb.HexSearchLive) %>
+  <%= live_render(@conn, LiveViewStudioWeb.SearchLive) %>
 </div>
 
 <div class="my-8">
@@ -22,6 +22,10 @@
 
 <div class="my-8">
   <%= live_render(@conn, LiveViewStudioWeb.LightLive) %>
+</div>
+
+<div class="my-8">
+  <%= live_render(@conn, LiveViewStudioWeb.HexSearchLive) %>
 </div>
 
 <hr>

@@ -7,5 +7,6 @@
     <li class="mr-6"><%= link "Light Live", to: "/light", class: link_class %></li>
     <li class="mr-6"><%= link "License Live", to: "/license", class: link_class %></li>
     <li class="mr-6"><%= link "Sales Dashboard Live", to: "/sales-dashboard", class: link_class %></li>
+    <li class="mr-6"><%= link "Search Live", to: "/search", class: link_class %></li>
   </ul>
 </nav>
