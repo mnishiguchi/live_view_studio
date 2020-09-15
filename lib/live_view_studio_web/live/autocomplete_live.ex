@@ -93,7 +93,7 @@ defmodule LiveViewStudioWeb.AutocompleteLive do
 
   def handle_event("zip-search", %{"zip" => zip}, socket) do
     # Run the zip search async.
-    send(self(), {:run_zip_search, zip})
+    send(self(), {:run_search, :zip, zip})
 
     # Assign the loading state.
     socket =
@@ -113,7 +113,7 @@ defmodule LiveViewStudioWeb.AutocompleteLive do
 
   def handle_event("city-search", %{"city" => city}, socket) do
     # Run the city search async.
-    send(self(), {:run_city_search, city})
+    send(self(), {:run_search, :city, city})
 
     # Assign the loading state.
     socket =
@@ -129,12 +129,12 @@ defmodule LiveViewStudioWeb.AutocompleteLive do
   @doc """
   Performs search and assigns the result.
   """
-  def handle_info({:run_zip_search, zip}, socket) do
-    case Stores.search_by_zip(zip) do
+  def handle_info({:run_search, field, term}, socket) do
+    case store_search(field, term) do
       [] ->
         socket =
           socket
-          |> put_flash(:info, ~s(No store matching "#{zip}"))
+          |> put_flash(:info, ~s(No store matching "#{term}"))
           |> assign(stores: [], loading: false)
 
         {:noreply, socket}
@@ -149,23 +149,6 @@ defmodule LiveViewStudioWeb.AutocompleteLive do
     end
   end
 
-  def handle_info({:run_city_search, city}, socket) do
-    case Stores.search_by_city(city) do
-      [] ->
-        socket =
-          socket
-          |> put_flash(:info, ~s(No store matching "#{city}"))
-          |> assign(stores: [], loading: false)
-
-        {:noreply, socket}
-
-      stores ->
-        socket =
-          socket
-          |> clear_flash()
-          |> assign(stores: stores, loading: false)
-
-        {:noreply, socket}
-    end
-  end
+  defp store_search(:zip, term), do: Stores.search_by_zip(term)
+  defp store_search(:city, term), do: Stores.search_by_city(term)
 end
