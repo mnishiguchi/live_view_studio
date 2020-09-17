@@ -12,12 +12,7 @@ defmodule LiveViewStudioWeb.FilterLive do
     # assigns is a great option because you can just load the data from the
     # database again. If you had hundreds of thousands of these processes
     # saving a small amount of memory in each one really adds up.
-    socket =
-      assign(socket,
-        boats: Boats.list_boats(),
-        type: "",
-        prices: []
-      )
+    socket = assign_defaults(socket)
 
     # We want the boats to be reset to an empty list after render. That way
     # they are not held in memory.
@@ -29,7 +24,7 @@ defmodule LiveViewStudioWeb.FilterLive do
     <h1>Daily Boat Rentals</h1>
 
     <div id="filter">
-      <form phx-change="filter">
+      <form phx-change="apply-filter">
         <div class="filters">
           <select name="type">
             <%= options_for_select(type_options(), @type) %>
@@ -41,6 +36,8 @@ defmodule LiveViewStudioWeb.FilterLive do
               <%= render_price_checkbox(price: price, checked: price in @prices) %>
             <% end %>
           </div>
+
+          <a phx-click="clear-filter">Clear All</a>
         </div>
       </form>
 
@@ -53,12 +50,8 @@ defmodule LiveViewStudioWeb.FilterLive do
                 <%= boat.model %>
               </div>
               <div class="details">
-                <span class="price">
-                  <%= boat.price %>
-                </span>
-                <span class="type">
-                  <%= boat.type %>
-                </span>
+                <span class="price"><%= boat.price %></span>
+                <span class="type"><%= boat.type %></span>
               </div>
             </div>
           </div>
@@ -68,10 +61,15 @@ defmodule LiveViewStudioWeb.FilterLive do
     """
   end
 
-  def handle_event("filter", %{"type" => type, "prices" => prices}, socket) do
+  def handle_event("apply-filter", %{"type" => type, "prices" => prices}, socket) do
     filter_params = [type: type, prices: prices]
     boats = Boats.list_boats(filter_params)
     socket = assign(socket, filter_params ++ [boats: boats])
+    {:noreply, socket}
+  end
+
+  def handle_event("clear-filter", _, socket) do
+    socket = assign_defaults(socket)
     {:noreply, socket}
   end
 
@@ -97,5 +95,9 @@ defmodule LiveViewStudioWeb.FilterLive do
           <%= if @checked, do: "checked" %> />
     <label for="<%= @price %>"><%= @price %></label>
     """
+  end
+
+  defp assign_defaults(socket) do
+    assign(socket, boats: Boats.list_boats(), type: "", prices: [])
   end
 end
