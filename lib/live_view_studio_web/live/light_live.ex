@@ -44,12 +44,8 @@ defmodule LiveViewStudioWeb.LightLive do
       </form>
 
       <form phx-change="change-temperature">
-        <%= for temperature <- [3000, 4000, 5000] do %>
-          <% temperature_id = "temperature_#{temperature}" %>
-          <input type="radio" id="<%= temperature_id %>"
-                 name="temperature" value="<%= temperature %>"
-                 <%= if @temperature == temperature, do: "checked" %> />
-          <label for="<%= temperature_id %>"><%= temperature %></label>
+        <%= for t <- [3000, 4000, 5000] do %>
+          <%= render_temperature_radio_button(%{temperature: t, checked: @temperature == t}) %>
         <% end %>
       </form>
     </div>
@@ -91,6 +87,17 @@ defmodule LiveViewStudioWeb.LightLive do
   def handle_event("change-temperature", %{"temperature" => temperature}, socket) do
     temperature = String.to_integer(temperature)
     {:noreply, assign(socket, temperature: temperature)}
+  end
+
+  defp render_temperature_radio_button(assigns) do
+    assigns = Map.put(assigns, :id, "temperature_#{assigns.temperature}")
+
+    ~L"""
+    <input type="radio" id="<%= @id %>"
+           name="temperature" value="<%= @temperature %>"
+           <%= if @checked, do: "checked" %> />
+    <label for="<%= @id %>"><%= @temperature %></label>
+    """
   end
 
   defp temperature_color(3000), do: "#F1C40D"
