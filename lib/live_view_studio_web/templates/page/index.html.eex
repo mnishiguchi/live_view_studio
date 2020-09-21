@@ -4,6 +4,7 @@
     <strong>Rendering a LiveView on a Non-LiveView Page</strong><br>
     So you don't have to go all-in with LiveView. You can sprinkle in tasty bits of interactivity where it makes sense.
   </p>
+  <%= link "Examples", to: "/index" %>
 </section>
 
 <hr>

@@ -15,7 +15,7 @@ h1 {
 }
 
 ul.examples {
-  @apply mt-8 text-2xl mx-auto max-w-xs list-disc;
+  @apply mt-8 text-2xl mx-auto max-w-xs;
 
   li {
     @apply mt-3;

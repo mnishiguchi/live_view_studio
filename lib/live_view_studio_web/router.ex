@@ -21,6 +21,7 @@ defmodule LiveViewStudioWeb.Router do
     get "/", PageController, :index
 
     # LiveView routes
+    live "/index", IndexLive
     live "/hex-search", HexSearchLive
     live "/light", LightLive
     live "/license", LicenseLive

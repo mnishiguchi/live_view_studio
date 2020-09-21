@@ -1,0 +1,39 @@
+<div class="max-w-xl mx-auto text-center">
+  <h1>Table Of Contents</h1>
+
+  <ul class="examples">
+    <li><%= link "Home", to: "/" %></li>
+    <li>
+      <%= live_redirect "Hex Search Live",
+            to: Routes.live_path(@socket, LiveViewStudioWeb.HexSearchLive) %>
+    </li>
+    <li>
+      <%= live_redirect "Light Live",
+            to: Routes.live_path(@socket, LiveViewStudioWeb.LightLive) %>
+    </li>
+    <li>
+      <%= live_redirect "License Live",
+            to: Routes.live_path(@socket, LiveViewStudioWeb.LicenseLive) %>
+    </li>
+    <li>
+      <%= live_redirect "Sales Dashboard Live",
+            to: Routes.live_path(@socket, LiveViewStudioWeb.SalesDashboardLive) %>
+    </li>
+    <li>
+      <%= live_redirect "Search Live",
+            to: Routes.live_path(@socket, LiveViewStudioWeb.SearchLive) %>
+    </li>
+    <li>
+      <%= live_redirect "Autocomolete Live",
+            to: Routes.live_path(@socket, LiveViewStudioWeb.AutocompleteLive) %>
+    </li>
+    <li>
+      <%= live_redirect "Filter Live",
+            to: Routes.live_path(@socket, LiveViewStudioWeb.FilterLive) %>
+    </li>
+    <li>
+      <%= live_redirect "Servers Live",
+            to: Routes.live_path(@socket, LiveViewStudioWeb.ServersLive) %>
+    </li>
+  </ul>
+</div>
