@@ -31,8 +31,8 @@ defmodule LiveViewStudio.Donations do
   Example Criteria:
 
   [
-   paginate: %{page: 2, per_page: 5},
-   sort: %{sort_by: :item, sort_order: :asc}
+    paginate: %{page: 2, per_page: 5},
+    sort: %{sort_by: :item, sort_order: :asc}
   ]
   """
 
