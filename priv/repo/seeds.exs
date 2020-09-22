@@ -263,6 +263,7 @@ donation_items = [
 ]
 
 for _i <- 1..100 do
+  # Sample an entry from a list.
   {emoji, item} = Enum.random(donation_items)
 
   %Donation{
