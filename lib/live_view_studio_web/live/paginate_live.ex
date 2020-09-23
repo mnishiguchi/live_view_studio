@@ -3,6 +3,9 @@ defmodule LiveViewStudioWeb.PaginateLive do
 
   alias LiveViewStudio.Donations
 
+  @default_page 1
+  @default_per_page 5
+
   def mount(_params, _session, socket) do
     {:ok, socket, temporary_assigns: [donations: []]}
   end
@@ -13,19 +16,30 @@ defmodule LiveViewStudioWeb.PaginateLive do
     #
     # For this example, we can assign all the state in handle_params since it
     # all changes as we navigate from page to page.
-    page = String.to_integer(params["page"] || "1")
-    per_page = String.to_integer(params["per_page"] || "5")
+    page = if params["page"], do: String.to_integer(params["page"]), else: @default_page
+
+    per_page =
+      if params["per_page"], do: String.to_integer(params["per_page"]), else: @default_per_page
 
     paginate_options = %{page: page, per_page: per_page}
     donations = Donations.list_donations(paginate: paginate_options)
 
     socket =
-      assign(socket,
+      socket
+      |> assign(
         options: paginate_options,
         donations: donations
       )
 
-    {:noreply, socket}
+    case donations do
+      [] ->
+        socket = put_flash(socket, :error, "Ran out of items")
+        {:noreply, socket}
+
+      _ ->
+        socket = clear_flash(socket)
+        {:noreply, socket}
+    end
   end
 
   def handle_event("select-per-page", %{"per-page" => per_page}, socket) do
