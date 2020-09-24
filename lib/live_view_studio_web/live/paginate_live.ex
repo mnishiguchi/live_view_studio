@@ -16,12 +16,7 @@ defmodule LiveViewStudioWeb.PaginateLive do
     #
     # For this example, we can assign all the state in handle_params since it
     # all changes as we navigate from page to page.
-    page = if params["page"], do: String.to_integer(params["page"]), else: @default_page
-
-    per_page =
-      if params["per_page"], do: String.to_integer(params["per_page"]), else: @default_per_page
-
-    paginate_options = %{page: page, per_page: per_page}
+    paginate_options = %{page: page(params["page"]), per_page: per_page(params["per_page"])}
     donations = Donations.list_donations(paginate: paginate_options)
 
     socket =
@@ -84,4 +79,10 @@ defmodule LiveViewStudioWeb.PaginateLive do
       class: class
     )
   end
+
+  defp page(nil), do: @default_page
+  defp page(value) when is_binary(value), do: String.to_integer(value)
+
+  defp per_page(nil), do: @default_per_page
+  defp per_page(value) when is_binary(value), do: String.to_integer(value)
 end
