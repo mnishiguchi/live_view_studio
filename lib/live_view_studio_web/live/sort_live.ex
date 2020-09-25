@@ -5,6 +5,8 @@ defmodule LiveViewStudioWeb.SortLive do
 
   @default_page 1
   @default_per_page 5
+  @default_sort_by :id
+  @default_sort_order :asc
 
   def mount(_params, _session, socket) do
     {:ok, socket, temporary_assigns: [donations: []]}
@@ -16,13 +18,26 @@ defmodule LiveViewStudioWeb.SortLive do
     #
     # For this example, we can assign all the state in handle_params since it
     # all changes as we navigate from page to page.
-    paginate_options = %{page: page(params["page"]), per_page: per_page(params["per_page"])}
-    donations = Donations.list_donations(paginate: paginate_options)
+    paginate_options = %{
+      page: build_option_value(:page, params["page"]),
+      per_page: build_option_value(:per_mage, params["per_page"])
+    }
+
+    sort_options = %{
+      sort_by: build_option_value(:sort_by, params["sort_by"]),
+      sort_order: build_option_value(:sort_order, params["sort_order"])
+    }
+
+    donations =
+      Donations.list_donations(
+        paginate: paginate_options,
+        sort: sort_options
+      )
 
     socket =
       socket
       |> assign(
-        options: paginate_options,
+        options: Map.merge(paginate_options, sort_options),
         donations: donations
       )
 
@@ -37,9 +52,20 @@ defmodule LiveViewStudioWeb.SortLive do
     end
   end
 
+  defp build_option_value(:page, nil), do: @default_page
+  defp build_option_value(:page, value) when is_binary(value), do: String.to_integer(value)
+
+  defp build_option_value(:per_mage, nil), do: @default_per_page
+  defp build_option_value(:per_mage, value) when is_binary(value), do: String.to_integer(value)
+
+  defp build_option_value(:sort_by, nil), do: @default_sort_by
+  defp build_option_value(:sort_by, value) when is_binary(value), do: String.to_atom(value)
+
+  defp build_option_value(:sort_order, nil), do: @default_sort_order
+  defp build_option_value(:sort_order, value) when is_binary(value), do: String.to_atom(value)
+
   def handle_event("select-per-page", %{"per-page" => per_page}, socket) do
     per_page = String.to_integer(per_page)
-    %{assigns: %{options: %{page: page}}} = socket
 
     # When push_patch is invoked, handle_params is invoked immediately to handle
     # the change in parameters and update the state. Then the new diff and the
@@ -48,14 +74,13 @@ defmodule LiveViewStudioWeb.SortLive do
     # So by doing this , we are basically navigating to the current LiveView
     # with updated URL params, but we are initiating is from the server side.
     socket =
-      push_patch(
-        socket,
+      push_patch(socket,
         to:
-          Routes.live_path(
-            socket,
-            __MODULE__,
-            page: page,
-            per_page: per_page
+          Routes.live_path(socket, __MODULE__,
+            page: socket.assigns.options.page,
+            per_page: per_page,
+            sort_by: socket.assigns.options.sort_by,
+            sort_order: socket.assigns.options.sort_order
           )
       )
 
@@ -66,23 +91,41 @@ defmodule LiveViewStudioWeb.SortLive do
     if Donations.almost_expired?(donation), do: "eat-now", else: "fresh"
   end
 
-  defp pagination_link(socket, text: text, page: page, per_page: per_page, class: class) do
-    live_patch(text,
-      to:
-        Routes.live_path(
-          socket,
-          __MODULE__,
-          page: page,
-          per_page: per_page
-        ),
-      replace: false,
-      class: class
+  defp sort_link(socket, text, sort_by, %{} = options) do
+    text =
+      if sort_by == options.sort_by,
+        do: "#{text} #{sort_icon(options.sort_order)}",
+        else: text
+
+    pagination_link(
+      socket,
+      text,
+      Map.merge(
+        options,
+        %{
+          sort_by: sort_by,
+          sort_order: toggle_sort_order(options.sort_order)
+        }
+      )
     )
   end
 
-  defp page(nil), do: @default_page
-  defp page(value) when is_binary(value), do: String.to_integer(value)
+  defp toggle_sort_order(:asc), do: :desc
+  defp toggle_sort_order(:desc), do: :asc
+  defp sort_icon(:asc), do: "↓"
+  defp sort_icon(:desc), do: " ↑"
 
-  defp per_page(nil), do: @default_per_page
-  defp per_page(value) when is_binary(value), do: String.to_integer(value)
+  defp pagination_link(socket, text, %{} = options) do
+    live_patch(text,
+      to:
+        Routes.live_path(socket, __MODULE__,
+          page: options.page,
+          per_page: options.per_page,
+          sort_by: options.sort_by,
+          sort_order: options.sort_order
+        ),
+      replace: options[:replace],
+      class: options[:class]
+    )
+  end
 end
