@@ -92,10 +92,14 @@ defmodule LiveViewStudioWeb.SortLive do
   end
 
   defp sort_link(socket, text, sort_by, %{} = options) do
+    # Notice that it uses the pin operator (^) to pattern match against the
+    # sort_by field's existing value. So it has the same effect of checking for
+    # equivalence.
     text =
-      if sort_by == options.sort_by,
-        do: "#{text} #{sort_icon(options.sort_order)}",
-        else: text
+      case options do
+        %{sort_by: ^sort_by, sort_order: sort_order} -> "#{text} #{sort_icon(sort_order)}"
+        _ -> text
+      end
 
     pagination_link(
       socket,
