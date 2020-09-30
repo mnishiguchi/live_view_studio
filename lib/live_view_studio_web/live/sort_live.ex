@@ -5,8 +5,8 @@ defmodule LiveViewStudioWeb.SortLive do
 
   @default_page 1
   @default_per_page 5
-  @default_sort_by :id
-  @default_sort_order :asc
+  @permitted_sort_bys ~w[id item quantity days_until_expires]
+  @permitted_sort_orders ~w[asc desc]
 
   def mount(_params, _session, socket) do
     {:ok, socket, temporary_assigns: [donations: []]}
@@ -18,15 +18,9 @@ defmodule LiveViewStudioWeb.SortLive do
     #
     # For this example, we can assign all the state in handle_params since it
     # all changes as we navigate from page to page.
-    paginate_options = %{
-      page: build_option_value(:page, params["page"]),
-      per_page: build_option_value(:per_mage, params["per_page"])
-    }
 
-    sort_options = %{
-      sort_by: build_option_value(:sort_by, params["sort_by"]),
-      sort_order: build_option_value(:sort_order, params["sort_order"])
-    }
+    paginate_options = build_paginate_options(params)
+    sort_options = build_sort_options(params)
 
     donations =
       Donations.list_donations(
@@ -52,17 +46,45 @@ defmodule LiveViewStudioWeb.SortLive do
     end
   end
 
-  defp build_option_value(:page, nil), do: @default_page
-  defp build_option_value(:page, value) when is_binary(value), do: String.to_integer(value)
+  defp build_paginate_options(params) do
+    page = param_to_integer(params["page"], @default_page)
+    per_page = param_to_integer(params["per_page"], @default_per_page)
 
-  defp build_option_value(:per_mage, nil), do: @default_per_page
-  defp build_option_value(:per_mage, value) when is_binary(value), do: String.to_integer(value)
+    %{page: page, per_page: per_page}
+  end
 
-  defp build_option_value(:sort_by, nil), do: @default_sort_by
-  defp build_option_value(:sort_by, value) when is_binary(value), do: String.to_atom(value)
+  defp build_sort_options(params) do
+    sort_by =
+      params
+      |> param_or_first_permitted("sort_by", @permitted_sort_bys)
+      |> String.to_atom()
 
-  defp build_option_value(:sort_order, nil), do: @default_sort_order
-  defp build_option_value(:sort_order, value) when is_binary(value), do: String.to_atom(value)
+    sort_order =
+      params
+      |> param_or_first_permitted("sort_order", @permitted_sort_orders)
+      |> String.to_atom()
+
+    sort_options = %{sort_by: sort_by, sort_order: sort_order}
+  end
+
+  # It's always wise to be suspicious of URL params and validate them in the
+  # `handle_params` callback. One way to do that is to check if a received URL
+  # parameter is in a list of permitted parameters.
+  defp param_or_first_permitted(params, key, permitted) do
+    value = params[key]
+    if value in permitted, do: value, else: hd(permitted)
+  end
+
+  # TODO: You could even start to put generic helper functions like this in a
+  # separate module so they could be invoked from other LiveView modules.
+  defp param_to_integer(nil, default_value), do: default_value
+
+  defp param_to_integer(param, default_value) do
+    case Integer.parse(param) do
+      {number, _} -> number
+      :error -> default_value
+    end
+  end
 
   def handle_event("select-per-page", %{"per-page" => per_page}, socket) do
     per_page = String.to_integer(per_page)
@@ -95,7 +117,7 @@ defmodule LiveViewStudioWeb.SortLive do
     # Notice that it uses the pin operator (^) to pattern match against the
     # sort_by field's existing value. So it has the same effect of checking for
     # equivalence.
-    text =
+    link_text =
       case options do
         %{sort_by: ^sort_by, sort_order: sort_order} -> "#{text} #{sort_icon(sort_order)}"
         _ -> text
@@ -103,7 +125,7 @@ defmodule LiveViewStudioWeb.SortLive do
 
     pagination_link(
       socket,
-      text,
+      link_text,
       Map.merge(
         options,
         %{
