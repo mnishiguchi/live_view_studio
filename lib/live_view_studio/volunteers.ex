@@ -18,7 +18,7 @@ defmodule LiveViewStudio.Volunteers do
 
   """
   def list_volunteers do
-    Repo.all(Volunteer)
+    Repo.all(from v in Volunteer, order_by: [desc: v.id])
   end
 
   @doc """
