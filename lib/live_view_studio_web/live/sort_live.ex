@@ -1,6 +1,8 @@
 defmodule LiveViewStudioWeb.SortLive do
   use LiveViewStudioWeb, :live_view
 
+  import LiveViewStudioWeb.ParamHelpers
+
   alias LiveViewStudio.Donations
 
   @default_page 1
@@ -19,6 +21,8 @@ defmodule LiveViewStudioWeb.SortLive do
     # For this example, we can assign all the state in handle_params since it
     # all changes as we navigate from page to page.
 
+    # It's always wise to be suspicious of URL params and validate them in the
+    # `handle_params` callback.
     paginate_options = build_paginate_options(params)
     sort_options = build_sort_options(params)
 
@@ -56,34 +60,15 @@ defmodule LiveViewStudioWeb.SortLive do
   defp build_sort_options(params) do
     sort_by =
       params
-      |> param_or_first_permitted("sort_by", @permitted_sort_bys)
+      |> get_param_or_first_permitted("sort_by", @permitted_sort_bys)
       |> String.to_atom()
 
     sort_order =
       params
-      |> param_or_first_permitted("sort_order", @permitted_sort_orders)
+      |> get_param_or_first_permitted("sort_order", @permitted_sort_orders)
       |> String.to_atom()
 
-    sort_options = %{sort_by: sort_by, sort_order: sort_order}
-  end
-
-  # It's always wise to be suspicious of URL params and validate them in the
-  # `handle_params` callback. One way to do that is to check if a received URL
-  # parameter is in a list of permitted parameters.
-  defp param_or_first_permitted(params, key, permitted) do
-    value = params[key]
-    if value in permitted, do: value, else: hd(permitted)
-  end
-
-  # TODO: You could even start to put generic helper functions like this in a
-  # separate module so they could be invoked from other LiveView modules.
-  defp param_to_integer(nil, default_value), do: default_value
-
-  defp param_to_integer(param, default_value) do
-    case Integer.parse(param) do
-      {number, _} -> number
-      :error -> default_value
-    end
+    %{sort_by: sort_by, sort_order: sort_order}
   end
 
   def handle_event("select-per-page", %{"per-page" => per_page}, socket) do
