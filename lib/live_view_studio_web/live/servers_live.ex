@@ -33,6 +33,7 @@ defmodule LiveViewStudioWeb.ServersLive do
   def handle_params(%{"id" => id}, _url, socket) do
     id = String.to_integer(id)
     server = Servers.get_server!(id)
+
     socket =
       assign(socket,
         selected_server: server,
@@ -47,7 +48,25 @@ defmodule LiveViewStudioWeb.ServersLive do
     {:noreply, socket}
   end
 
-  defp link_body(server) do
+  # ## Difference between typical HTML href and live_patch
+  #
+  # - typical href: sends a new HTTP request
+  # - live_patch: ensures the event is pushed to the current LiveView process
+  #
+  defp link_to_server(socket, server, selected_server) do
+    live_patch(build_server_link_body(server),
+      to:
+        Routes.live_path(
+          socket,
+          __MODULE__,
+          id: server.id
+        ),
+      replace: true,
+      class: if(server == selected_server, do: "active")
+    )
+  end
+
+  defp build_server_link_body(server) do
     assigns = %{name: server.name}
 
     ~L"""
