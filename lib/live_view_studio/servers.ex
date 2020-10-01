@@ -18,7 +18,8 @@ defmodule LiveViewStudio.Servers do
 
   """
   def list_servers do
-    Repo.all(Server)
+    # The most-recently added server is always at the top of the list.
+    Repo.all(from s in Server, order_by: [desc: s.id])
   end
 
   @doc """

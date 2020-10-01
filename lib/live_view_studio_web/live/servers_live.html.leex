@@ -1,5 +1,10 @@
 <h1>Servers</h1>
 
+<%= live_patch "Add Server",
+      to: Routes.servers_path(@socket, :new),
+      class: "w-48 text-center -mt-4 mb-2 block underline"
+%>
+
 <div id="servers">
   <div class="sidebar">
     <nav>
@@ -11,41 +16,48 @@
 
   <div class="main">
     <div class="wrapper">
-      <div class="card">
-        <div class="header">
-          <h2><%= @selected_server.name %></h2>
-          <span class="<%= @selected_server.status %>">
-            <%= @selected_server.status %>
-          </span>
-        </div>
-        <div class="body">
-          <div class="row">
-            <div class="deploys">
-              <img src="/images/deploy.svg">
+      <%= if @live_action == :new do %>
+        TODO: NEW FORM
+      <% else %>
+        <div class="card">
+          <div class="header">
+            <h2><%= @selected_server.name %></h2>
+            <span class="<%= @selected_server.status %>">
+              <%= @selected_server.status %>
+            </span>
+          </div>
+
+          <div class="body">
+            <div class="row">
+              <div class="deploys">
+                <img src="/images/deploy.svg">
+                <span>
+                  <%= @selected_server.deploy_count %> deploys
+                </span>
+              </div>
               <span>
-                <%= @selected_server.deploy_count %> deploys
+                <%= @selected_server.size %> MB
+              </span>
+              <span>
+                <%= @selected_server.framework %>
               </span>
             </div>
-            <span>
-              <%= @selected_server.size %> MB
-            </span>
-            <span>
-              <%= @selected_server.framework %>
-            </span>
+
+            <h3>Git Repo</h3>
+            <div class="repo">
+              <%= @selected_server.git_repo %>
+            </div>
+
+            <h3>Last Commit</h3>
+            <div class="commit">
+              <%= @selected_server.last_commit_id %>
+            </div>
+            <blockquote>
+              <%= @selected_server.last_commit_message %>
+            </blockquote>
           </div>
-          <h3>Git Repo</h3>
-          <div class="repo">
-            <%= @selected_server.git_repo %>
-          </div>
-          <h3>Last Commit</h3>
-          <div class="commit">
-            <%= @selected_server.last_commit_id %>
-          </div>
-          <blockquote>
-            <%= @selected_server.last_commit_message %>
-          </blockquote>
         </div>
-      </div>
+      <% end %>
     </div>
   </div>
 </div>
