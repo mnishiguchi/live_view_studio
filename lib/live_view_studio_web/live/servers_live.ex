@@ -2,6 +2,7 @@ defmodule LiveViewStudioWeb.ServersLive do
   use LiveViewStudioWeb, :live_view
 
   alias LiveViewStudio.Servers
+  alias LiveViewStudio.Servers.Server
 
   def mount(_params, _session, socket) do
     servers = Servers.list_servers()
@@ -10,8 +11,7 @@ defmodule LiveViewStudioWeb.ServersLive do
     # needed when a live-patch link is clicked.
     socket =
       assign(socket,
-        servers: servers,
-        selected_server: hd(servers)
+        servers: servers
       )
 
     {:ok, socket}
@@ -44,8 +44,25 @@ defmodule LiveViewStudioWeb.ServersLive do
   end
 
   # Handles a URL with no params.
-  def handle_params(_, _url, socket) do
-    {:noreply, socket}
+  def handle_params(_params, _url, socket) do
+    case socket.assigns.live_action do
+      :new ->
+        socket =
+          assign(socket,
+            selected_server: nil,
+            changeset: Servers.change_server(%Server{})
+          )
+
+        {:noreply, socket}
+
+      _ ->
+        socket =
+          assign(socket,
+            selected_server: hd(socket.assigns.servers)
+          )
+
+        {:noreply, socket}
+    end
   end
 
   # ## Difference between typical HTML href and live_patch
@@ -64,6 +81,32 @@ defmodule LiveViewStudioWeb.ServersLive do
       replace: true,
       class: if(server == selected_server, do: "active")
     )
+  end
+
+  def handle_event("create_server", %{"server" => params}, socket) do
+    case Servers.create_server(params) do
+      {:ok, server} ->
+        socket =
+          socket
+          # Prepend the newly-created server to the list.
+          |> update(:servers, fn servers -> [server | servers] end)
+          # Navigate to the new server's detail page.
+          |> push_patch(
+            to:
+              Routes.live_path(
+                socket,
+                __MODULE__,
+                id: server.id
+              )
+          )
+
+        {:noreply, socket}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        # This changeset has validation errors.
+        socket = assign(socket, changeset: changeset)
+        {:noreply, socket}
+    end
   end
 
   defp build_server_link_body(server) do

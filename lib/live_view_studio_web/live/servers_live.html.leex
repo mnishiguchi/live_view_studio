@@ -2,8 +2,7 @@
 
 <%= live_patch "Add Server",
       to: Routes.servers_path(@socket, :new),
-      class: "w-48 text-center -mt-4 mb-2 block underline"
-%>
+      class: "w-48 text-center -mt-4 mb-2 block underline" %>
 
 <div id="servers">
   <div class="sidebar">
@@ -17,7 +16,37 @@
   <div class="main">
     <div class="wrapper">
       <%= if @live_action == :new do %>
-        TODO: NEW FORM
+        <%= f = form_for @changeset, "#", phx_submit: "create_server" %>
+          <div class="field">
+            <%= label f, :name %>
+            <%= text_input f, :name, autocomplete: "off" %>
+            <%= error_tag f, :name %>
+          </div>
+
+          <div class="field">
+            <%= label f, :framework %>
+            <%= text_input f, :framework, autocomplete: "off" %>
+            <%= error_tag f, :framework %>
+          </div>
+
+          <div class="field">
+            <%= label f, :size, "Size (MB)" %>
+            <%= number_input f, :size, autocomplete: "off" %>
+            <%= error_tag f, :size %>
+          </div>
+
+          <div class="field">
+            <%= label f, :git_repo, "Git Repo" %>
+            <%= text_input f, :git_repo, autocomplete: "off" %>
+            <%= error_tag f, :git_repo %>
+          </div>
+
+          <%= submit "Save", phx_disable_with: "Saving..." %>
+
+          <%= live_patch "Cancel",
+                to: Routes.live_path(@socket, __MODULE__),
+                class: "cancel" %>
+        </form>
       <% else %>
         <div class="card">
           <div class="header">
