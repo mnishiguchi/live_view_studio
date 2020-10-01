@@ -65,24 +65,6 @@ defmodule LiveViewStudioWeb.ServersLive do
     end
   end
 
-  # ## Difference between typical HTML href and live_patch
-  #
-  # - typical href: sends a new HTTP request
-  # - live_patch: ensures the event is pushed to the current LiveView process
-  #
-  defp link_to_server(socket, server, selected_server) do
-    live_patch(build_server_link_body(server),
-      to:
-        Routes.live_path(
-          socket,
-          __MODULE__,
-          id: server.id
-        ),
-      replace: true,
-      class: if(server == selected_server, do: "active")
-    )
-  end
-
   def handle_event("create_server", %{"server" => params}, socket) do
     case Servers.create_server(params) do
       {:ok, server} ->
@@ -107,6 +89,24 @@ defmodule LiveViewStudioWeb.ServersLive do
         socket = assign(socket, changeset: changeset)
         {:noreply, socket}
     end
+  end
+
+  # ## Difference between typical HTML href and live_patch
+  #
+  # - typical href: sends a new HTTP request
+  # - live_patch: ensures the event is pushed to the current LiveView process
+  #
+  defp link_to_server(socket, server, selected_server) do
+    live_patch(build_server_link_body(server),
+      to:
+        Routes.live_path(
+          socket,
+          __MODULE__,
+          id: server.id
+        ),
+      replace: true,
+      class: if(server == selected_server, do: "active")
+    )
   end
 
   defp build_server_link_body(server) do
