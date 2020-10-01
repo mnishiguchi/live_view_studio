@@ -19,9 +19,16 @@
     <%= submit "Check In", phx_disable_with: "Saving..." %>
   </form>
 
-  <div>
+  <%#
+  The phx-update attribute affects how the DOM is patched. The default value is
+  "replace". By setting it to "prepend", a new item will be prepended to the
+  list instead of being replaced. The container and items need to have a unique
+  DOM id.
+  %>
+  <div phx-update="prepend" id="volunteers">
     <%= for volunteer <- @volunteers do %>
-      <div class="volunteer <%= if volunteer.checked_out, do: "out" %>">
+      <div class="volunteer <%= if volunteer.checked_out, do: "out" %>"
+           id="volunteer-<%= volunteer.id %>">
         <div class="name">
           <%= volunteer.name %>
         </div>

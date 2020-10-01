@@ -15,7 +15,10 @@ defmodule LiveViewStudioWeb.VolunteersLive do
         changeset: changeset
       )
 
-    {:ok, socket}
+    # We do not need to hold on to or track volunteers after they have been
+    # rendered. So this would be a good scenario for making the volunteers' list
+    # as being temporary.
+    {:ok, socket, temporary_assigns: [volunteers: []]}
   end
 
   def handle_event("create_volunteer", %{"volunteer" => params}, socket) do
