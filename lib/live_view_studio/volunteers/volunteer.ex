@@ -10,7 +10,6 @@ defmodule LiveViewStudio.Volunteers.Volunteer do
     timestamps()
   end
 
-  # ^\d{3}\D?\d{3}\D?\d{4}$
   @phone_regex ~r/^\d{3}[\s-.]?\d{3}[\s-.]?\d{4}$/
 
   @doc false
