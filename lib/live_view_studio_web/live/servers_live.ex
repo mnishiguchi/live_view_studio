@@ -65,6 +65,16 @@ defmodule LiveViewStudioWeb.ServersLive do
     end
   end
 
+  def handle_event("validate_server", %{"server" => params}, socket) do
+    changeset =
+      %Server{}
+      |> Servers.change_server(params)
+      |> Map.put(:action, :insert)
+
+    socket = assign(socket, changeset: changeset)
+    {:noreply, socket}
+  end
+
   def handle_event("create_server", %{"server" => params}, socket) do
     case Servers.create_server(params) do
       {:ok, server} ->
