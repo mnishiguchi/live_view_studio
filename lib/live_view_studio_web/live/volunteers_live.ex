@@ -68,11 +68,7 @@ defmodule LiveViewStudioWeb.VolunteersLive do
 
     # Although update_volunteer can return an error tuple there is no reason it
     # should so we pattern match an OK tuple and just let it fail otherwise.
-    {:ok, _volunteer} =
-      Volunteers.update_volunteer(
-        volunteer,
-        %{checked_out: !volunteer.checked_out}
-      )
+    {:ok, _volunteer} = Volunteers.toggle_status_of_volunteer(volunteer)
 
     # We need to re-fetch a collection from the database because `volunteers` is
     # a temporary assign.
