@@ -21,6 +21,21 @@ defmodule LiveViewStudioWeb.VolunteersLive do
     {:ok, socket, temporary_assigns: [volunteers: []]}
   end
 
+  def handle_event("validate_volunteer", %{"volunteer" => params}, socket) do
+    changeset =
+      %Volunteer{}
+      |> Volunteers.change_volunteer(params)
+      # Without this, we will not see any inline validation errors.
+      # The action is normally set for us such as when we call `Repo.insert`.
+      # But in this situation, we are just trying to validate the data and we
+      # have not called a repo function so we have to specify the action of the
+      # changeset.
+      |> Map.put(:action, :insert)
+
+    socket = assign(socket, changeset: changeset)
+    {:noreply, socket}
+  end
+
   def handle_event("create_volunteer", %{"volunteer" => params}, socket) do
     case Volunteers.create_volunteer(params) do
       {:ok, volunteer} ->

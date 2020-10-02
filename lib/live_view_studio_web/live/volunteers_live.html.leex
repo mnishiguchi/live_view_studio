@@ -2,17 +2,20 @@
 
 <div id="checkin">
   <%= f = form_for @changeset, "#",
+            phx_change: "validate_volunteer",
             phx_submit: "create_volunteer" %>
     <div class="field">
       <%= text_input f, :name,
             placeholder: "Name",
-            autocomplete: "off" %>
+            autocomplete: "off",
+            phx_debounce: "2000" %>
       <%= error_tag f, :name %>
     </div>
     <div class="field">
       <%= telephone_input f, :phone,
             placeholder: "Phone",
-            autocomplete: "off" %>
+            autocomplete: "off",
+            phx_debounce: "blur" %>
       <%= error_tag f, :phone %>
     </div>
 
