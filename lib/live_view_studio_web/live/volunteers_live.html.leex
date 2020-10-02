@@ -27,6 +27,9 @@
   "replace". By setting it to "prepend", a new item will be prepended to the
   list instead of being replaced. The container and items need to have a unique
   DOM id.
+
+  Even if we re-fetch the whole list from the database, LiveView will figure out
+  how to update the DOM properly based on the ID attributes.
   %>
   <div phx-update="prepend" id="volunteers">
     <%= for volunteer <- @volunteers do %>
@@ -40,14 +43,11 @@
           <%= volunteer.phone %>
         </div>
         <div class="status">
-          <%= if volunteer.checked_out do %>
-            <img src="/images/check-circle.svg">
-            Volunteered
-          <% else %>
-            <button>
-              Check Out
-            </button>
-          <% end %>
+          <button phx-click="toggle_status"
+                  phx-value-id="<%= volunteer.id %>"
+                  phx-disable-with: "Saving...">
+            <%= if volunteer.checked_out, do: "Check In", else: "Check Out" %>
+          </button>
         </div>
       </div>
     <% end %>

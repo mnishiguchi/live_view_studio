@@ -62,4 +62,27 @@ defmodule LiveViewStudioWeb.VolunteersLive do
         {:noreply, socket}
     end
   end
+
+  def handle_event("toggle_status", %{"id" => id}, socket) do
+    volunteer = Volunteers.get_volunteer!(id)
+
+    # Although update_volunteer can return an error tuple there is no reason it
+    # should so we pattern match an OK tuple and just let it fail otherwise.
+    {:ok, _volunteer} =
+      Volunteers.update_volunteer(
+        volunteer,
+        %{checked_out: !volunteer.checked_out}
+      )
+
+    # We need to re-fetch a collection from the database because `volunteers` is
+    # a temporary assign.
+    volunteers = Volunteers.list_volunteers()
+
+    socket = assign(
+      socket,
+      volunteers: volunteers
+    )
+
+    {:noreply, socket}
+  end
 end
