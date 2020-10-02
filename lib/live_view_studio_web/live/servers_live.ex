@@ -101,6 +101,33 @@ defmodule LiveViewStudioWeb.ServersLive do
     end
   end
 
+  def handle_event("toggle_status", %{"id" => id}, socket) do
+    {:ok, updated_server} =
+      id
+      |> Servers.get_server!()
+      |> Servers.toggle_status_of_server()
+
+    socket =
+      socket
+      # Update the currently-selected server
+      |> assign(selected_server: updated_server)
+      # Since we have a copy of the collection in memory, we can update it
+      # to avoid another database hit.
+      |> update(
+        :servers,
+        fn servers ->
+          for s <- servers do
+            case s.id == updated_server.id do
+              true -> updated_server
+              _ -> s
+            end
+          end
+        end
+      )
+
+    {:noreply, socket}
+  end
+
   # ## Difference between typical HTML href and live_patch
   #
   # - typical href: sends a new HTTP request

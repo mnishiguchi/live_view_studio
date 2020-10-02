@@ -2,6 +2,8 @@ defmodule LiveViewStudio.Servers.Server do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @status_allowlist ["up", "down"]
+
   schema "servers" do
     field :deploy_count, :integer, default: 0
     field :framework, :string
@@ -35,6 +37,6 @@ defmodule LiveViewStudio.Servers.Server do
     |> validate_length(:framework, min: 2, max: 50)
     |> validate_length(:git_repo, min: 2, max: 200)
     |> validate_number(:size, greater_than: 0)
-    |> validate_inclusion(:status, ["up", "down"])
+    |> validate_inclusion(:status, @status_allowlist)
   end
 end

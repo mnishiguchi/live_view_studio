@@ -61,9 +61,13 @@
         <div class="card">
           <div class="header">
             <h2><%= @selected_server.name %></h2>
-            <span class="<%= @selected_server.status %>">
+            <button phx-click="toggle_status"
+                    phx-value-id="<%= @selected_server.id %>"
+                    phx-disable-with="Saving..."
+                    class="<%= @selected_server.status %>">
               <%= @selected_server.status %>
-            </span>
+            </button>
+
           </div>
 
           <div class="body">
