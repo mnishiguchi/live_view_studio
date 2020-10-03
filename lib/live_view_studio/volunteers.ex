@@ -5,8 +5,31 @@ defmodule LiveViewStudio.Volunteers do
 
   import Ecto.Query, warn: false
   alias LiveViewStudio.Repo
-
   alias LiveViewStudio.Volunteers.Volunteer
+
+  @topic inspect(__MODULE__)
+
+  def subscribe do
+    Phoenix.PubSub.subscribe(LiveViewStudio.PubSub, @topic)
+  end
+
+  @doc """
+  The first argument is the result of `Repo.insert()` or `Repo.update()`. The
+  seconod argument is an internal event name as an atom. Returns the original
+  result of `Repo.insert()` or `Repo.update()`.
+  """
+  def broadcast({:ok, volunteer}, event) do
+    Phoenix.PubSub.broadcast(
+      LiveViewStudio.PubSub,
+      @topic,
+      {event, volunteer}
+    )
+
+    # Conform to the contract of Repo.insert()` or `Repo.update()`.
+    {:ok, volunteer}
+  end
+
+  def broadcast({:error, _reason} = error, _event), do: error
 
   @doc """
   Returns the list of volunteers.
@@ -53,6 +76,7 @@ defmodule LiveViewStudio.Volunteers do
     %Volunteer{}
     |> Volunteer.changeset(attrs)
     |> Repo.insert()
+    |> broadcast(:volunteer_created)
   end
 
   @doc """
@@ -71,6 +95,7 @@ defmodule LiveViewStudio.Volunteers do
     volunteer
     |> Volunteer.changeset(attrs)
     |> Repo.update()
+    |> broadcast(:volunteer_updated)
   end
 
   def toggle_status_of_volunteer(%Volunteer{} = volunteer) do
