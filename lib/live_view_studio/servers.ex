@@ -5,8 +5,24 @@ defmodule LiveViewStudio.Servers do
 
   import Ecto.Query, warn: false
   alias LiveViewStudio.Repo
-
   alias LiveViewStudio.Servers.Server
+
+  @topic inspect(__MODULE__)
+
+  def subscribe do
+    Phoenix.PubSub.subscribe(LiveViewStudio.PubSub, @topic)
+  end
+
+  # Notifies subscribers about a record created or updated.
+  # Accepts a result of Repo.insert()` or `Repo.update()` as a first argument
+  # and an internal event name as a second argument. Returns the original Repo
+  # result to conform to the contract.
+  defp broadcast({:ok, server} = repo_result, event) do
+    Phoenix.PubSub.broadcast(LiveViewStudio.PubSub, @topic, {event, server})
+    repo_result
+  end
+
+  defp broadcast({:error, _reason} = error, _event), do: error
 
   @doc """
   Returns the list of servers.
@@ -54,6 +70,7 @@ defmodule LiveViewStudio.Servers do
     %Server{}
     |> Server.changeset(attrs)
     |> Repo.insert()
+    |> broadcast(:server_created)
   end
 
   @doc """
@@ -72,8 +89,8 @@ defmodule LiveViewStudio.Servers do
     server
     |> Server.changeset(attrs)
     |> Repo.update()
+    |> broadcast(:server_updated)
   end
-
 
   def toggle_status_of_server(%Server{} = server) do
     status =

@@ -1,17 +1,18 @@
 defmodule LiveViewStudioWeb.ServersLive do
   use LiveViewStudioWeb, :live_view
 
+  alias Phoenix.LiveView.Socket
   alias LiveViewStudio.Servers
   alias LiveViewStudio.Servers.Server
 
   def mount(_params, _session, socket) do
-    servers = Servers.list_servers()
+    if connected?(socket), do: Servers.subscribe()
 
     # Using temporary_assigns is not a good fit for this because server list is
     # needed when a live-patch link is clicked.
     socket =
       assign(socket,
-        servers: servers
+        servers: Servers.list_servers()
       )
 
     {:ok, socket}
@@ -78,12 +79,9 @@ defmodule LiveViewStudioWeb.ServersLive do
   def handle_event("create_server", %{"server" => params}, socket) do
     case Servers.create_server(params) do
       {:ok, server} ->
+        # Navigate to the new server's detail page.
         socket =
-          socket
-          # Prepend the newly-created server to the list.
-          |> update(:servers, fn servers -> [server | servers] end)
-          # Navigate to the new server's detail page.
-          |> push_patch(
+          push_patch(socket,
             to:
               Routes.live_path(
                 socket,
@@ -111,19 +109,6 @@ defmodule LiveViewStudioWeb.ServersLive do
       socket
       # Update the currently-selected server
       |> assign(selected_server: updated_server)
-      # Since we have a copy of the collection in memory, we can update it
-      # to avoid another database hit.
-      |> update(
-        :servers,
-        fn servers ->
-          for s <- servers do
-            case s.id == updated_server.id do
-              true -> updated_server
-              _ -> s
-            end
-          end
-        end
-      )
 
     {:noreply, socket}
   end
@@ -157,5 +142,40 @@ defmodule LiveViewStudioWeb.ServersLive do
     <img src="/images/server.svg">
     <%= @name %>
     """
+  end
+
+  # After-create callback. Affects all the subscribers.
+  def handle_info({:server_created, server}, socket) do
+    # Since we have a copy of the collection in memory, we can update it to
+    # avoid another database hit.
+    {:noreply, update(socket, :servers, &[server | &1])}
+  end
+
+  # After-update callback. Affects all the subscribers.
+  def handle_info(
+        {:server_updated, updated_server},
+        %Socket{assigns: %{selected_server: currently_selected_server}} = socket
+      ) do
+    socket =
+      if updated_server.id == currently_selected_server.id,
+        do: assign(socket, selected_server: updated_server),
+        else: socket
+
+    # Find the matching server in the current list of servers in memory, change
+    # it, and update the list of servers.
+    socket =
+      update(
+        socket,
+        :servers,
+        fn servers ->
+          for s <- servers do
+            if s.id == updated_server.id,
+              do: updated_server,
+              else: s
+          end
+        end
+      )
+
+    {:noreply, socket}
   end
 end
