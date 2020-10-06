@@ -22,6 +22,26 @@ defmodule LiveViewStudio.PizzaOrders do
   end
 
   @doc """
+  Returns the list of pizza_orders.
+
+  ## Examples
+
+      iex> list_pizza_orders(page: 1, per_page: 5)
+      [%PizzaOrder{}, ...]
+
+  """
+  def list_pizza_orders(page: page, per_page: per_page) do
+    query =
+      from p in PizzaOrder,
+        offset: ^((page - 1) * per_page),
+        limit: ^per_page,
+        # Most recent orders first
+        order_by: [{:desc, :id}]
+
+    Repo.all(query)
+  end
+
+  @doc """
   Gets a single pizza_order.
 
   Raises `Ecto.NoResultsError` if the Pizza order does not exist.
