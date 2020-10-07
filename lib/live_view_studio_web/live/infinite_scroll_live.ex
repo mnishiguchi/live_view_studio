@@ -12,6 +12,17 @@ defmodule LiveViewStudioWeb.InfiniteScrollLive do
     {:ok, socket, temporary_assigns: [orders: []]}
   end
 
+  # Handles an event from the InfiniteScroll hook.
+  def handle_event("load_more", _, socket) do
+    socket =
+      socket
+      |> update(:page, &(&1 + 1))
+      |> load_orders()
+
+    {:noreply, socket}
+  end
+
+  # Support pagination so that we can load a collection little by little.
   defp load_orders(socket) do
     assign(socket,
       orders:
@@ -20,14 +31,5 @@ defmodule LiveViewStudioWeb.InfiniteScrollLive do
           per_page: socket.assigns.per_page
         )
     )
-  end
-
-  def handle_event("load-more", _, socket) do
-    socket =
-      socket
-      |> update(:page, &(&1 + 1))
-      |> load_orders()
-
-    {:noreply, socket}
   end
 end
