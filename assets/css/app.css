@@ -1,6 +1,7 @@
 /* This file is for your main application css. */
 
 @import "../node_modules/nprogress/nprogress.css";
+@import "../node_modules/flatpickr/dist/flatpickr.css";
 
 @import "tailwindcss/base";
 

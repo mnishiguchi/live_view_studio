@@ -1,0 +1,15 @@
+<div>
+  <form>
+    <input type="text"
+           id="date-picker-input"
+           phx-hook="DatePickerHook"
+           class="form-input" value="<%= @date %>"
+           placeholder="Pick a date">
+  </form>
+
+  <%= if @date do %>
+    <p class="mt-6 text-xl">
+      See you on <%= @date %>!
+    </p>
+  <% end %>
+</div>
