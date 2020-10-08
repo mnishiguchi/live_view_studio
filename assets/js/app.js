@@ -17,32 +17,16 @@ import { Socket } from 'phoenix';
 import NProgress from 'nprogress';
 import { LiveSocket } from 'phoenix_live_view';
 
-// Register hooks.
-let Hooks = {};
-Hooks.InfiniteScroll = {
-  mounted() {
-    console.log('Footer added to DOM', this.el);
-    this.observer = new IntersectionObserver(([firstEntry]) => {
-      if (firstEntry.isIntersecting) {
-        console.log('Loading indicator is visible');
-        this.pushEvent('load_more');
-      }
-    });
+import InfiniteScrollHook from './hooks/infinite_scroll_hook';
 
-    this.observer.observe(this.el);
-  },
-  updated() {
-    const pageNumber = this.el.dataset.pageNumber;
-    console.log('Updated', pageNumber);
-  },
-  destroyed() {
-    this.observer.disconnect();
-  },
-};
+// Register hooks here.
+let hooks = {
+  InfiniteScrollHook
+}
 
 let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 let liveSocket = new LiveSocket('/live', Socket, {
-  hooks: Hooks,
+  hooks,
   params: { _csrf_token: csrfToken },
 });
 
