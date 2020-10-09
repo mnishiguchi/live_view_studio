@@ -16,20 +16,18 @@ import 'phoenix_html';
 import { Socket } from 'phoenix';
 import NProgress from 'nprogress';
 import { LiveSocket } from 'phoenix_live_view';
-import flatpickr from "flatpickr";
 
 import InfiniteScrollHook from './hooks/infinite_scroll_hook';
 import DatePickerHook from './hooks/date_picker_hook';
-
-// Register hooks here.
-let hooks = {
-  InfiniteScrollHook,
-  DatePickerHook
-}
+import PhoneNumberHook from './hooks/phone_number_hook';
 
 let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 let liveSocket = new LiveSocket('/live', Socket, {
-  hooks,
+  hooks: {
+    InfiniteScrollHook,
+    DatePickerHook,
+    PhoneNumberHook,
+  },
   params: { _csrf_token: csrfToken },
 });
 
