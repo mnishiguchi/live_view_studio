@@ -1,0 +1,32 @@
+<%# Specify phx-target because this form is handled by the component (not the parent LiveView).
+  # The value of @myself is an internal unique reference to the component instance.
+%>
+<form phx-change="calculate_quote"
+      phx-target="<%= @myself %>"
+      phx-submit="get_quote">
+  <div class="field">
+    <label for="length">Length:</label>
+    <input type="number" name="length" value="<%= @length %>" />
+    <span class="unit">feet</span>
+  </div>
+
+  <div class="field">
+    <label for="length">Width:</label>
+    <input type="number" name="width" value="<%= @width %>" />
+    <span class="unit">feet</span>
+  </div>
+
+  <div class="field">
+    <label for="length">Depth:</label>
+    <input type="number" name="depth" value="<%= @depth %>" />
+    <span class="unit">inches</span>
+  </div>
+
+  <div class="weight">
+    You need <%= @weight %> pounds
+  </div>
+
+  <button type="submit">
+    Get Quote
+  </button>
+</form>

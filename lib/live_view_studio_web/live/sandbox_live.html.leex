@@ -1,8 +1,14 @@
 <h1>Build a sandbox</h1>
 
 <div id="sandbox">
-  <%= live_component @socket, QuoteComponent,
-        material: "sand",
-        weight: 10.0,
-        price: 15.0  %>
+  <%= live_component @socket, SandboxCalculatorComponent,
+        id: 1,
+        coupon: 10.0 %>
+
+  <%= if @weight do %>
+    <%= live_component @socket, QuoteComponent,
+          material: "sand",
+          weight: @weight,
+          price: @price %>
+  <% end %>
 </div>
