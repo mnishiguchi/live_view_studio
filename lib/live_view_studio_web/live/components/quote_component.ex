@@ -4,8 +4,14 @@ defmodule LiveViewStudioWeb.QuoteComponent do
 
   import Number.Currency
 
+  @default_assigns [
+    hrs_until_expires: 24,
+  ]
+
   def mount(socket) do
-    {:ok, assign(socket, hrs_until_expires: 24)}
+    {:ok,
+     socket
+     |> assign(@default_assigns)}
   end
 
   # Useful when we want to derive assigns from the passed-in assigns.

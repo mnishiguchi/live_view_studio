@@ -3,35 +3,40 @@ defmodule LiveViewStudioWeb.SandboxCalculatorComponent do
 
   alias LiveViewStudio.SandboxCalculator
 
-  # Useful when we we want to assign default values.
+  @default_assigns [
+    length: nil,
+    width: nil,
+    depth: nil,
+    color: nil,
+    weight: 0
+  ]
+
   def mount(socket) do
     {:ok,
      socket
-     |> assign(
-       length: nil,
-       width: nil,
-       depth: nil,
-       weight: 0
-     )}
+     |> assign(@default_assigns)}
   end
 
   # Invoked everytime the quote form is changed.
-  def handle_event("calculate_quote", %{"length" => l, "width" => w, "depth" => d} = _params, socket) do
+  def handle_event("calculate_quote", %{"length" => l, "width" => w, "depth" => d, "color" => color} = _params, socket) do
     dimensions = [length: l, width: w, depth: d]
 
     {:noreply,
      socket
      |> assign(dimensions)
-     |> assign(weight: SandboxCalculator.calculate_weight(dimensions))}
+     |> assign(
+       color: color,
+       weight: SandboxCalculator.calculate_weight(dimensions)
+     )}
   end
 
   # Involked when the quote form is submitted.
-  def handle_event("get_quote", _params, %{assigns: %{weight: weight}} = socket) do
+  def handle_event("get_quote", _params, %{assigns: %{weight: weight, color: color}} = socket) do
     price = SandboxCalculator.calculate_price_from_weight(weight)
 
     # `self` is the process in which the parent LiveView and the components are
     # running. The parent LiveView will receive and handle this message.
-    send(self(), {:totals, weight, price})
+    send(self(), {:totals, weight, price, color})
 
     {:noreply, socket}
   end

@@ -3,15 +3,25 @@ defmodule LiveViewStudioWeb.SandboxLive do
 
   alias LiveViewStudioWeb.{QuoteComponent, SandboxCalculatorComponent}
 
+  @default_assigns [
+    weight: nil,
+    price: nil,
+    color: "indigo"
+  ]
+
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(weight: nil, price: nil)}
+     |> assign(@default_assigns)}
   end
 
-  def handle_info({:totals, weight, price}, socket) do
+  def handle_info({:totals, weight, price, color}, socket) do
     {:noreply,
      socket
-     |> assign(weight: weight, price: price)}
+     |> assign(
+       weight: weight,
+       price: price,
+       color: color
+     )}
   end
 end
